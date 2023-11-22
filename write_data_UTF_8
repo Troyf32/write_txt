@@ -1,0 +1,83 @@
+void FPGA_tool::data2SRAM(const std::vector<cv::Mat>& src) // not for binery type
+{
+	std::vector<cv::Mat> a;
+	string txt_name;
+	char file_name_char[128];
+	txt_name = raw檔案名稱;
+	
+
+	for (int i = 0; i < src.size(); i++)
+	{
+		a.push_back(src[i]);
+		//his_equ_test(a[i]);
+		//cv::cvtColor(a[i], a[i], CV_GRAY2BGR);
+	}
+
+	cv::imshow("data2", a[0]);
+
+	std::cout << "src type " << src[0].type() << std::endl;
+	//std::fstream outputPosition;
+	//outputPosition.open("position.txt", std::ios::out);
+	//std::cout << a[0].type();
+	//for (int row = 0; row < a[0].rows; row++)
+	//{
+	//	for (int col = 0; col < a[0].cols; col++)
+	//	{
+	//		outputPosition << std::hex << a[0].at<uchar>(row, col) ;
+	//		fprintf(fp, "%x\t:\t%x;\n", i, a[0].at<uchar>(row, col)); //一行一行對應寫入i:輸入值 out:輸出值 1對1數值 其餘(不重要)自己設計
+
+	//	}
+	//}
+	//outputPosition.close();
+	FILE* fp;
+	//fopen_s(&fp, "raw449_tb.txt", "w");  // sram029.txt  /*文件名隨意，但擴展名必須為.mif*/
+	sprintf_s(file_name_char, txt_name.c_str());
+	fopen_s(&fp, file_name_char, "w");   /*文件名隨意，但擴展名必須為.mif*/
+	if (NULL == fp)
+		printf("Can not creat file!\r\n");
+	else
+	{
+		printf("File created successfully!\n");
+
+		for (int row = 0; row < a[0].rows; row++)
+		{
+			for (int col = 0; col < a[0].cols; col++)
+			{
+				fprintf(fp, "%d\n", src[0].at<uchar>(row, col)); //一行一行對應寫入i:輸入值 out:輸出值 1對1數值 其餘(不重要)自己設計
+			}
+		}
+		//fprintf(fp, "%d\n", (int)3213%256); //xc <= 14'd3213;//200.831
+		//fprintf(fp, "%d\n", (int)3213/256); //xc <= 14'd3213;//200.831
+		//fprintf(fp, "%d\n", (int)1580 % 256); //yc <= 14'd1580;//98.8053 
+		//fprintf(fp, "%d\n", (int)1580 / 256); //yc <= 14'd1580;//98.8053 
+		//fprintf(fp, "%d\n", (int)1308 % 256); //rE <= 13'd1308;//81.7641
+		//fprintf(fp, "%d\n", (int)1308 / 256); //rE <= 13'd1308;//81.7641
+		//fprintf(fp, "%d\n", (int)713 % 256); //rI <= 13'd713;//44.5744
+		//fprintf(fp, "%d\n", (int)713 / 256); //rI <= 13'd713;//44.5744
+
+		//fprintf(fp, "%d\n", (int)139 % 256); //tau <= 8'd139;  // tau = 0.545158572  tau = 44.5744 / 81.7641
+		//fprintf(fp, "%d\n", (int)139 / 256); //tau <= 8'd139;  // tau = 0.545158572
+		fclose(fp);
+	}
+	a.push_back(src[0].clone());
+	a[1]=0;
+	std::fstream fin;
+	std::string temp;
+	//fin.open("raw449_tb.txt", std::ios::in); //sram029.txt
+	fin.open(file_name_char, std::ios::in);
+	for (int row = 0; row < a[0].rows; row++)
+	{
+		for (int col = 0; col < a[0].cols; col++)
+		{
+			
+			fin >> temp;
+			a[1].at<uchar>(row, col) = stoi(temp, 0, 0);
+		}
+	}
+	fin.close();
+	//std::cout << a[1].type();
+	//his_equ_test(a[1]);
+
+	cv::imshow("newimg", a[1]);
+	cv::waitKey(0);
+}
